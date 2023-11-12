@@ -1,0 +1,56 @@
+name: second_brain
+description: A new Flutter project.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.5 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.0.5
+  flutter_svg: ^2.0.9
+  equatable: ^2.0.5
+  freezed: ^2.4.5
+  freezed_annotation: ^2.4.1
+  get_it: ^7.6.4
+  json_annotation: ^4.8.1
+  intl: ^0.18.1
+  connectivity_plus: ^5.0.1
+  injectable: ^2.3.2
+  http: ^1.1.0
+  objectbox: ^2.3.1
+  objectbox_flutter_libs: ^2.3.1
+  path_provider: ^2.1.1
+  path: ^1.8.3
+  auto_size_text: ^3.0.0
+  pie_chart: ^5.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+  build_runner: ^2.4.6
+  injectable_generator: ^2.4.1
+  json_serializable: ^6.7.1
+  objectbox_generator: ^2.3.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/icons/
+    - assets/logos/
+  fonts:
+    - family: Quicksand
+      fonts:
+        - asset: assets/fonts/Quicksand-Bold.ttf
+        - asset: assets/fonts/Quicksand-Light.ttf
+        - asset: assets/fonts/Quicksand-Medium.ttf
+        - asset: assets/fonts/Quicksand-Regular.ttf
+        - asset: assets/fonts/Quicksand-SemiBold.ttf
+        - asset: assets/fonts/Quicksand-VariableFont_wght.ttf
