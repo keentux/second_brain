@@ -1,15 +1,13 @@
-import 'package:injectable/injectable.dart';
 import 'package:second_brain/core/api_error_result_model.dart';
 import 'package:second_brain/core/api_result_model.dart';
 import 'package:second_brain/core/custom_connection_exception.dart';
-import 'package:second_brain/core/weather_feature/weather_by_coord_req_model.dart';
+import 'package:second_brain/core/weather_feature/weather_req_model.dart';
 import 'package:second_brain/data/datasources/local_datasource/weather_local_datasource.dart';
 import 'package:second_brain/data/datasources/remote_datasource/weather_remote_datasource.dart';
 import 'package:second_brain/data/models/weather_info_response_model.dart';
 import 'package:second_brain/domain/entities/weather_remote_entities.dart';
 import 'package:second_brain/domain/repositories/weather_repository.dart';
 
-@Injectable(as: WeatherRepository)
 class WeatherRepositoryImpl implements WeatherRepository {
   final WeatherRemoteDataSource remoteDataSource;
   final WeatherLocalDataSource localDataSource;
@@ -51,11 +49,12 @@ class WeatherRepositoryImpl implements WeatherRepository {
 
   @override
   Future<ApiResultModel<WeatherInfoEntity?>> getWeatherDataByCity({
-    String? cityName,
+    WeatherByCityReqModel? weatherByCityReqModel,
   }) async {
     try {
       final ApiResultModel<WeatherInfoResponseModel?> result =
-          await remoteDataSource.getWeatherDataByCity(cityName: cityName);
+          await remoteDataSource.getWeatherDataByCity(
+              weatherByCityReqModel: weatherByCityReqModel);
       return result.when(
         success: (WeatherInfoResponseModel? weatherInfoResponseModel) {
           if (weatherInfoResponseModel != null) {

@@ -1,22 +1,28 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:second_brain/core/di/app_component.dart';
+import 'package:second_brain/domain/entities/user_entities.dart';
+import 'package:second_brain/presentation/cubit/task_cubit.dart';
+import 'package:second_brain/presentation/cubit/user_cubit.dart';
 import 'package:second_brain/presentation/models/weather_view_model.dart';
 import 'package:second_brain/presentation/pages/agenda_page.dart';
 import 'package:second_brain/presentation/pages/home_page.dart';
 import 'package:second_brain/presentation/pages/tasks_page.dart';
 import 'package:second_brain/presentation/pages/settings_page.dart';
 import 'package:second_brain/presentation/widgets/buttons.dart';
-import 'package:second_brain/presentation/widgets/create_task_dialog.dart';
+import 'package:second_brain/presentation/widgets/task_dialog.dart';
+import 'package:second_brain/presentation/widgets/user_dialog.dart';
+import 'package:second_brain/themes/app_theme.dart';
 import 'package:second_brain/themes/icons.dart';
-import 'themes/color.dart';
+import 'package:second_brain/utils/locator.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initAppComponentLocator();
+  // await initAppComponentLocator();
+  await initDependencies();
   runApp(const MyApp());
 }
 
@@ -25,24 +31,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => locator<UserCubit>()),
+        BlocProvider(create: (_) => locator<TaskCubit>()),
+      ],
       child: MaterialApp(
         title: 'Secondary Brain',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: const ColorScheme.dark().copyWith(
-            primary: myPrimaryColor,
-            onPrimary: myPrimaryColorLight,
-            secondary: mySecondaryColor,
-            onSecondary: mySecondaryColorLight,
-            tertiary: myAccentColor,
-            onTertiary: myAccentLightColor,
-            outline: myWhiteColor,
-            outlineVariant: myAccentNotifColor,
-          ),
-          fontFamily: 'Quicksand',
-        ),
+        theme: AppTheme.dark,
         home: const MyAppPage(),
       ),
     );
@@ -66,7 +62,8 @@ class MyAppState extends ChangeNotifier {
 }
 
 class MyAppPage extends StatefulWidget {
-  const MyAppPage({super.key});
+  final UserEntity? userData;
+  const MyAppPage({super.key, this.userData});
 
   @override
   State<MyAppPage> createState() => _MyAppPageState();
@@ -99,159 +96,173 @@ class _MyAppPageState extends State<MyAppPage> {
         throw UnimplementedError('No widget for $currIdx');
     }
 
-    return ChangeNotifierProvider(
-      create: (BuildContext context) => locator<WeatherViewModel>(),
+    context.read<UserCubit>().getLastUser();
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (BuildContext context) => locator<WeatherViewModel>(),
+        )
+      ],
       child: LayoutBuilder(
         builder: (context, constraints) {
           Size screenSize = MediaQuery.of(context).size;
           final double maxPageHeight = max(screenSize.height, minPageHeight);
           return Scaffold(
             body: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Theme.of(context).colorScheme.onSecondary,
-                    Theme.of(context).colorScheme.secondary,
-                  ],
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Theme.of(context).colorScheme.onSecondary,
+                      Theme.of(context).colorScheme.secondary,
+                    ],
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  SafeArea(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      controller: ScrollController(),
-                      child: ConstrainedBox(
-                        constraints:
-                            BoxConstraints(minHeight: constraints.maxHeight),
-                        child: IntrinsicHeight(
-                          child: NavigationRail(
-                            backgroundColor: Colors.transparent,
-                            useIndicator: false,
-                            leading: SizedBox(
-                              height: minRail,
-                              width: minRail,
-                              child: SvgPicture.asset(
-                                'assets/logos/snd_brain_logo.svg',
-                                colorFilter: ColorFilter.mode(
-                                    Theme.of(context).colorScheme.tertiary,
-                                    BlendMode.srcIn),
+                child: Row(
+                  children: [
+                    SafeArea(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        controller: ScrollController(),
+                        child: ConstrainedBox(
+                          constraints:
+                              BoxConstraints(minHeight: constraints.maxHeight),
+                          child: IntrinsicHeight(
+                            child: NavigationRail(
+                              leading: SizedBox(
+                                height: minRail,
+                                width: minRail,
+                                child: SvgPicture.asset(
+                                  'assets/logos/snd_brain_logo.svg',
+                                  colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.tertiary,
+                                      BlendMode.srcIn),
+                                ),
                               ),
-                            ),
-                            trailing: Expanded(
-                              child: Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    bottom: 20,
-                                    left: 8,
-                                    right: 8,
-                                  ),
-                                  child: MyIconButton(
-                                    icon: addIcon,
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) =>
-                                            buildCreateTaskDialog(context),
-                                      );
-                                    },
+                              trailing: Expanded(
+                                child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: 20,
+                                      left: 8,
+                                      right: 8,
+                                    ),
+                                    child: BlocBuilder<UserCubit, UserEntity?>(
+                                      builder: (context, state) {
+                                        return MyIconButton(
+                                          icon: (state != null)
+                                              ? addIcon
+                                              : userAddIcon,
+                                          onPressed: () {
+                                            if (state != null) {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        buildCreateTaskDialog(
+                                                            context),
+                                              );
+                                            } else {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        buildCreateUserDialog(
+                                                  context,
+                                                ),
+                                              );
+                                            }
+                                          },
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
+                              minExtendedWidth: minExtendedRail,
+                              minWidth: minRail,
+                              extended:
+                                  constraints.maxWidth >= 10 * minExtendedRail,
+                              destinations: const [
+                                NavigationRailDestination(
+                                  icon: homeIcon,
+                                  selectedIcon: homeIconPlain,
+                                  label: Text('Home'),
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                ),
+                                NavigationRailDestination(
+                                  icon: noteIcon,
+                                  selectedIcon: noteIconPlain,
+                                  label: Text('Tasks'),
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                ),
+                                NavigationRailDestination(
+                                  icon: calendarIcon,
+                                  selectedIcon: calendartIconPlain,
+                                  label: Text('Agenda'),
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                ),
+                                NavigationRailDestination(
+                                  icon: settingsIcon,
+                                  selectedIcon: settingsIconPlain,
+                                  label: Text('Settings'),
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                ),
+                              ],
+                              selectedIndex: currIdx,
+                              onDestinationSelected: (value) {
+                                setState(() {
+                                  currIdx = value;
+                                });
+                              },
                             ),
-                            minExtendedWidth: minExtendedRail,
-                            minWidth: minRail,
-                            extended:
-                                constraints.maxWidth >= 10 * minExtendedRail,
-                            selectedLabelTextStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Quicksand'),
-                            unselectedLabelTextStyle: TextStyle(
-                              color: Theme.of(context).colorScheme.onTertiary,
-                              fontWeight: FontWeight.normal,
-                              fontFamily: 'Quicksand',
-                            ),
-                            destinations: const [
-                              NavigationRailDestination(
-                                icon: homeIcon,
-                                selectedIcon: homeIconPlain,
-                                label: Text('Home'),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                              ),
-                              NavigationRailDestination(
-                                icon: noteIcon,
-                                selectedIcon: noteIconPlain,
-                                label: Text('Tasks'),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                              ),
-                              NavigationRailDestination(
-                                icon: calendarIcon,
-                                selectedIcon: calendartIconPlain,
-                                label: Text('Agenda'),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                              ),
-                              NavigationRailDestination(
-                                icon: settingsIcon,
-                                selectedIcon: settingsIconPlain,
-                                label: Text('Settings'),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                              ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              Theme.of(context).colorScheme.onPrimary,
+                              Theme.of(context).colorScheme.primary,
                             ],
-                            selectedIndex: currIdx,
-                            onDestinationSelected: (value) {
-                              setState(() {
-                                currIdx = value;
-                              });
-                            },
+                          ),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            bottomLeft: Radius.circular(20),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [
-                            Theme.of(context).colorScheme.onPrimary,
-                            Theme.of(context).colorScheme.primary,
-                          ],
-                        ),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          bottomLeft: Radius.circular(20),
-                        ),
-                      ),
-                      child: LayoutBuilder(builder: (context, constraints) {
-                        return SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: max(constraints.maxWidth, minPageWidth),
-                            ),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxHeight: maxPageHeight,
+                        child: LayoutBuilder(builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth:
+                                    max(constraints.maxWidth, minPageWidth),
+                              ),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxHeight: maxPageHeight,
+                                  ),
+                                  child: page,
                                 ),
-                                child: page,
                               ),
                             ),
-                          ),
-                        );
-                      }),
+                          );
+                        }),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  ],
+                )),
           );
         },
       ),

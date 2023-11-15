@@ -5,6 +5,10 @@ abstract class BaseParamsUseCase<Type, Request> {
   Future<ApiResultModel<Type>> call(Request? params);
 }
 
+abstract class DBBaseParamsUseCase<Type, Request> {
+  Future<Type> call(Request params);
+}
+
 class NoParams extends Equatable {
   @override
   List<Object> get props => <Object>[];

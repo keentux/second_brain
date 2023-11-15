@@ -1,4 +1,3 @@
-import 'package:injectable/injectable.dart';
 import 'package:second_brain/core/extension_function.dart';
 import 'package:second_brain/core/weather_feature/weather_type_enum.dart';
 import 'package:second_brain/data/datasources/local_datasource/local_database.dart';
@@ -7,7 +6,6 @@ import 'package:second_brain/data/models/weather_info_local_model.dart';
 import 'package:second_brain/data/models/weather_info_response_model.dart';
 import 'package:second_brain/domain/entities/weather_remote_entities.dart';
 
-@Injectable(as: WeatherLocalDataSource)
 class WeatherLocalDataSourceImpl implements WeatherLocalDataSource {
   final AppLocalDatabase appLocalDatabase;
 

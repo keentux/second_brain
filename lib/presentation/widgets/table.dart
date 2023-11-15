@@ -1,9 +1,15 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:second_brain/core/extension_function.dart';
 import 'package:second_brain/core/function_helper.dart';
+import 'package:second_brain/core/task_feature/task_status_enum.dart';
+import 'package:second_brain/domain/entities/task_entity.dart';
+import 'package:second_brain/presentation/cubit/task_cubit.dart';
+import 'package:second_brain/presentation/widgets/card.dart';
 import 'package:second_brain/presentation/widgets/dividers.dart';
+import 'package:second_brain/presentation/widgets/task_dialog.dart';
 
 class MyColumn extends StatelessWidget {
   final String? title;
@@ -50,69 +56,166 @@ class MyColumn extends StatelessWidget {
 }
 
 class TaskTableWidget extends StatelessWidget {
-  final List<Widget>? todoWidgets;
-  final List<Widget>? inProgressWidgets;
-  final List<Widget>? toReviewWidgets;
-  final List<Widget>? doneWidgets;
+  final bool summarize;
   final double? titleFontSize;
 
   const TaskTableWidget({
     super.key,
-    this.todoWidgets,
-    this.inProgressWidgets,
-    this.toReviewWidgets,
-    this.doneWidgets,
+    this.summarize = false,
     this.titleFontSize,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: (context) {
-      return Row(
-        children: <Widget>[
-          Expanded(
-            child: MyColumn(
-              title: 'To Do',
-              fontSize: titleFontSize,
-              children: todoWidgets,
-            ),
-          ),
-          MyVerticalDivider(
-            color: Theme.of(context).colorScheme.onTertiary,
-            identFactor: 5,
-          ),
-          Expanded(
-            child: MyColumn(
-              title: 'In Progress',
-              fontSize: titleFontSize,
-              children: inProgressWidgets,
-            ),
-          ),
-          MyVerticalDivider(
-            color: Theme.of(context).colorScheme.onTertiary,
-            identFactor: 5,
-          ),
-          Expanded(
-            child: MyColumn(
-              title: 'To Review',
-              fontSize: titleFontSize,
-              children: toReviewWidgets,
-            ),
-          ),
-          MyVerticalDivider(
-            color: Theme.of(context).colorScheme.onTertiary,
-            identFactor: 5,
-          ),
-          Expanded(
-            child: MyColumn(
-              title: 'Done',
-              fontSize: titleFontSize,
-              children: doneWidgets,
-            ),
-          ),
-        ],
-      );
-    });
+    return BlocBuilder<TaskCubit, List<TaskEntity>?>(
+      builder: (context, taskState) {
+        List<TaskEntity>? todoTasks = taskState
+            ?.where((element) => element.status == TaskStatusEnum.todo)
+            .toList();
+        List<TaskEntity>? inProgressTasks = taskState
+            ?.where((element) => element.status == TaskStatusEnum.inprogress)
+            .toList();
+        List<TaskEntity>? inReviewTasks = taskState
+            ?.where((element) => element.status == TaskStatusEnum.inreview)
+            .toList();
+        List<TaskEntity>? doneTasks = taskState
+            ?.where((element) => element.status == TaskStatusEnum.done)
+            .toList();
+        return Builder(builder: (context) {
+          return Row(
+            children: <Widget>[
+              Expanded(
+                child: MyColumn(
+                  title: 'To Do',
+                  fontSize: titleFontSize,
+                  children: [
+                    if (todoTasks != null)
+                      for (TaskEntity task in todoTasks)
+                        InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  builRenderTask(context, task),
+                            );
+                          },
+                          child: (summarize)
+                              ? MyTitledCard(
+                                  task.title ?? '',
+                                  color: Theme.of(context).colorScheme.outline,
+                                )
+                              : MyDescriptedCard(
+                                  title: task.title ?? '',
+                                  description: task.description,
+                                ),
+                        ),
+                  ],
+                ),
+              ),
+              MyDivider(
+                vertical: true,
+                color: Theme.of(context).colorScheme.onTertiary,
+                identFactor: 5,
+              ),
+              Expanded(
+                child: MyColumn(
+                  title: 'In Progress',
+                  fontSize: titleFontSize,
+                  children: [
+                    if (inProgressTasks != null)
+                      for (TaskEntity task in inProgressTasks)
+                        InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  builRenderTask(context, task),
+                            );
+                          },
+                          child: (summarize)
+                              ? MyTitledCard(
+                                  task.title ?? '',
+                                  color: Theme.of(context).colorScheme.outline,
+                                )
+                              : MyDescriptedCard(
+                                  title: task.title ?? '',
+                                  description: task.description,
+                                ),
+                        ),
+                  ],
+                ),
+              ),
+              MyDivider(
+                vertical: true,
+                color: Theme.of(context).colorScheme.onTertiary,
+                identFactor: 5,
+              ),
+              Expanded(
+                child: MyColumn(
+                  title: 'To Review',
+                  fontSize: titleFontSize,
+                  children: [
+                    if (inReviewTasks != null)
+                      for (TaskEntity task in inReviewTasks)
+                        InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  builRenderTask(context, task),
+                            );
+                          },
+                          child: (summarize)
+                              ? MyTitledCard(
+                                  task.title ?? '',
+                                  color: Theme.of(context).colorScheme.outline,
+                                )
+                              : MyDescriptedCard(
+                                  title: task.title ?? '',
+                                  description: task.description,
+                                ),
+                        ),
+                  ],
+                ),
+              ),
+              MyDivider(
+                vertical: true,
+                color: Theme.of(context).colorScheme.onTertiary,
+                identFactor: 5,
+              ),
+              Expanded(
+                child: MyColumn(
+                  title: 'Done',
+                  fontSize: titleFontSize,
+                  children: [
+                    if (doneTasks != null)
+                      for (TaskEntity task in doneTasks)
+                        InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  builRenderTask(context, task),
+                            );
+                          },
+                          child: (summarize)
+                              ? MyTitledCard(
+                                  task.title ?? '',
+                                  color: Theme.of(context).colorScheme.outline,
+                                )
+                              : MyDescriptedCard(
+                                  title: task.title ?? '',
+                                  description: task.description,
+                                ),
+                        ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 }
 
@@ -215,7 +318,8 @@ class WeekTableWidget extends StatelessWidget {
               ),
             ),
           ),
-          MyVerticalDivider(
+          MyDivider(
+            vertical: true,
             color: Theme.of(context).colorScheme.onTertiary,
             identFactor: 5,
           ),
@@ -232,7 +336,8 @@ class WeekTableWidget extends StatelessWidget {
               ),
             ),
           ),
-          MyVerticalDivider(
+          MyDivider(
+            vertical: true,
             color: Theme.of(context).colorScheme.onTertiary,
             identFactor: 5,
           ),
@@ -249,7 +354,8 @@ class WeekTableWidget extends StatelessWidget {
               ),
             ),
           ),
-          MyVerticalDivider(
+          MyDivider(
+            vertical: true,
             color: Theme.of(context).colorScheme.onTertiary,
             identFactor: 5,
           ),
@@ -266,7 +372,8 @@ class WeekTableWidget extends StatelessWidget {
               ),
             ),
           ),
-          MyVerticalDivider(
+          MyDivider(
+            vertical: true,
             color: Theme.of(context).colorScheme.onTertiary,
             identFactor: 5,
           ),
@@ -283,7 +390,8 @@ class WeekTableWidget extends StatelessWidget {
               ),
             ),
           ),
-          MyVerticalDivider(
+          MyDivider(
+            vertical: true,
             color: Theme.of(context).colorScheme.onTertiary,
             identFactor: 5,
           ),
@@ -300,7 +408,8 @@ class WeekTableWidget extends StatelessWidget {
               ),
             ),
           ),
-          MyVerticalDivider(
+          MyDivider(
+            vertical: true,
             color: Theme.of(context).colorScheme.onTertiary,
             identFactor: 5,
           ),

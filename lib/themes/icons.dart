@@ -12,6 +12,8 @@ const noteIcon = MyIcon(assetPath: "assets/icons/note_line.svg");
 const noteIconPlain = MyIcon(assetPath: "assets/icons/note_plain.svg");
 const settingsIcon = MyIcon(assetPath: "assets/icons/settings_line.svg");
 const settingsIconPlain = MyIcon(assetPath: "assets/icons/settings_plain.svg");
+const userAddIcon = MyIcon(assetPath: "assets/icons/user_add_line.svg");
+const userAddIconPlain = MyIcon(assetPath: "assets/icons/user_add_plain.svg");
 
 /// Weather icons
 const barometerIcon = MyIcon(assetPath: "assets/icons/barometer.svg");

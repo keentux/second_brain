@@ -24,7 +24,7 @@ class BaseView<T> extends StatefulWidget {
 class _BaseViewState<T> extends State<BaseView<T>> {
   bool _showLoader = false;
 
-  /// Print a scafoldMessahe if no internet
+  /// Print a scafoldMessage if no internet
   void checkInternetAvail() {
     ConnectivityCheckerHelper.listenToConnectivityChanged()
         .listen((ConnectivityResult connectivityResult) {
@@ -98,6 +98,39 @@ class _BaseViewState<T> extends State<BaseView<T>> {
               ),
           ],
         );
+      },
+    );
+  }
+}
+
+class DbBaseView<T> extends StatefulWidget {
+  final Widget Function(T provider) buildWidget;
+  final void Function(T provider)? onInitState;
+  const DbBaseView({
+    super.key,
+    required this.buildWidget,
+    this.onInitState,
+  });
+
+  @override
+  State<DbBaseView<T>> createState() => _DbBaseViewState<T>();
+}
+
+class _DbBaseViewState<T> extends State<DbBaseView<T>> {
+  @override
+  void initState() {
+    final provider = Provider.of<T>(context, listen: false);
+    if (widget.onInitState != null) {
+      widget.onInitState!(provider);
+    }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<T>(
+      builder: (BuildContext context, T provider, Widget? child) {
+        return widget.buildWidget(provider);
       },
     );
   }

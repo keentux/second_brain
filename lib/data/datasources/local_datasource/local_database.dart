@@ -20,8 +20,7 @@ class AppLocalDatabase {
   }
 
   int insert<T>(T object) {
-    final Box<T> box = store.box<T>();
-    return box.put(object);
+    return store.box<T>().put(object);
   }
 
   Future<T?> getLast<T>() async {
@@ -37,7 +36,10 @@ class AppLocalDatabase {
   }
 
   Future<List<T>?> getAll<T>() async {
-    final Box<T> box = store.box<T>();
-    return box.getAll();
+    return store.box<T>().getAll();
+  }
+
+  Future<bool> remove<T>(int id) async {
+    return store.box<T>().remove(id);
   }
 }

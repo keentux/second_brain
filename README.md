@@ -1,6 +1,6 @@
 # second_brain
 
-![Logo](img/snd_brain_logo_color.png)
+![Logo](./doc/img/snd_brain_logo_color.png)
 
 This project was started during the SUSE hackWeek 2023. For further information
 see [hackweek project page](https://hackweek.opensuse.org/23/projects/create-a-trello-tool-desktop-software-to-track-daily-task-and-improve-personnal-productivity)
@@ -22,18 +22,4 @@ of app that can be run as a desktop app from our favorite distribution.
 
 ## App UI
 
-### Welcome Page
-
-![welcome page](img/snd_brain_welcome_page.png)
-
-### Task Page
-
-![Task Page](img/snd_brain_tasks_page.png)
-
-### Agenda Page
-
-![Agenda Page](img/snd_brain_agenda_page.png)
-
-### Create Task
-
-![Agenda Page](img/snd_brain_create_task.png)
+See [UI overview](./doc/ui_overview.md)

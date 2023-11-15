@@ -1,16 +1,21 @@
 import 'dart:async';
 
-import 'package:injectable/injectable.dart';
 import 'package:second_brain/core/api_result_state.dart';
 import 'package:second_brain/core/base_components/base_view_model.dart';
-import 'package:second_brain/core/weather_feature/weather_by_coord_req_model.dart';
+import 'package:second_brain/core/weather_feature/weather_req_model.dart';
 import 'package:second_brain/domain/entities/weather_remote_entities.dart';
 import 'package:second_brain/domain/usecases/get_weather_data.dart';
 
-@injectable
 class WeatherViewModel extends BaseViewModel {
   final GetWeatherDataByCoord getWeatherDataByCoord;
-  WeatherViewModel(this.getWeatherDataByCoord);
+  final GetWeatherDataByCity getWeatherDataByCity;
+  WeatherViewModel({
+    required this.getWeatherDataByCoord,
+    required this.getWeatherDataByCity,
+  });
+
+  String? _lastCity;
+  String? get lastCity => _lastCity;
 
   /// Create a Stream containing ApiResultState<WeatherInfoEntity>
   final StreamController<ApiResultState<WeatherInfoEntity?>?> _weatherResult =
@@ -27,6 +32,19 @@ class WeatherViewModel extends BaseViewModel {
         await executeParamsUseCase(
       useCase: getWeatherDataByCoord,
       query: weatherByCoordReqModel,
+    );
+
+    _weatherResult.add(result);
+  }
+
+  /// Get the Weather By cityname
+  Future<void> getWeatherByCity(
+      {WeatherByCityReqModel? weatherByCityReqModel}) async {
+    // _lastCity = cityName;
+    final ApiResultState<WeatherInfoEntity?>? result =
+        await executeParamsUseCase(
+      useCase: getWeatherDataByCity,
+      query: weatherByCityReqModel,
     );
 
     _weatherResult.add(result);

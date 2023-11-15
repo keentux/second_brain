@@ -12,9 +12,9 @@ import 'package:second_brain/core/extension_function.dart';
 
 @injectable
 class ApiCallHelper {
+  final ConnectivityCheckerHelper connectivityCheckerHelper;
   ApiCallHelper(this.connectivityCheckerHelper);
 
-  final ConnectivityCheckerHelper connectivityCheckerHelper;
   final String? baseUrl = appOpenWeatherBaseUrl;
 
   Map<String, String> _sharedDefaultHeader = <String, String>{};

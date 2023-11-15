@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:second_brain/core/app_constants.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:second_brain/domain/entities/user_entities.dart';
+import 'package:second_brain/presentation/cubit/user_cubit.dart';
 import 'package:second_brain/presentation/widgets/clock_digit.dart';
 import 'package:second_brain/presentation/widgets/date_text.dart';
 import 'package:second_brain/presentation/widgets/texts.dart';
@@ -31,9 +33,13 @@ class WelcomeWidget extends StatelessWidget {
                 const SizedBox(
                   width: 10,
                 ),
-                const GradientText(
-                  appUserName,
-                  fontSize: 42,
+                BlocBuilder<UserCubit, UserEntity?>(
+                  builder: (context, state) {
+                    return GradientText(
+                      state?.name ?? 'User',
+                      fontSize: 42,
+                    );
+                  },
                 ),
               ],
             ),

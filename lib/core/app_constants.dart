@@ -26,7 +26,6 @@ const String appOpenWeatherBaseUrl = 'https://api.openweathermap.org/data/2.5';
 /// getWeather details uri's and header keys
 const String appGetOpenWeatherDetails = '/weather';
 const String appOpenWeatherKey = 'appid';
-const String appOpenWeatherValue = 'todefined';
 const String appOpenWeatherCityNameKey = 'q';
 const String appOpenWeatherLatKey = 'lat';
 const String appOpenWeatherLonKey = 'lon';
