@@ -19,7 +19,7 @@ dependencies:
   get_it: ^7.6.4
   json_annotation: ^4.8.1
   intl: ^0.18.1
-  connectivity_plus: ^5.0.1
+  connectivity_plus: ^5.0.2
   injectable: ^2.3.2
   http: ^1.1.0
   objectbox: ^2.3.1
